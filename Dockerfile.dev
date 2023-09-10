@@ -1,0 +1,30 @@
+# Base Environment
+FROM node:16.0.0-alpine
+
+# Set the working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy all other source code files
+COPY . .
+
+# ENV variables
+ENV NODE_ENV development
+ENV DB_NAME twitter_clone_dev
+ENV DB_HOST gateway01.ap-southeast-1.prod.aws.tidbcloud.com
+ENV DB_PORT 4000
+ENV DB_USER 23oDa4xLohasboU.root
+ENV DB_PASSWORD joFF4W4uQHEutz5v
+ENV PORT 8080
+ENV SECRET_KEY 123456
+ENV TLS true
+
+# Expose port
+EXPOSE 8080
+
+CMD ["npm", "run", "start"]
