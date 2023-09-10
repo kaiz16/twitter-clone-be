@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/db.config.js");
+const User = require("./User.js");
 
 const Reply = sequelize.define(
   "Reply",
@@ -49,5 +50,6 @@ const Reply = sequelize.define(
     timestamps: false,
   }
 );
+Reply.belongsTo(User, { foreignKey: "createdBy", as: "user" });
 
 module.exports = Reply;

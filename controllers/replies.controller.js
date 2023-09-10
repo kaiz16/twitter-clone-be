@@ -15,6 +15,12 @@ async function getAllTweetReplies(req, res) {
       where: {
         tweetId: parseInt(req.params.tweetId),
       },
+      include: [
+        {
+          all: true,
+          nested: true,
+        },
+      ],
     });
 
     // Send all replies as response.
@@ -34,9 +40,19 @@ async function createTweetReply(req, res) {
 
     // Create reply using data from request body.
     // Request body must contain all required fields defined in Reply model.
-    const reply = await Reply.create({
+    const result = await Reply.create({
       ...req.body,
       tweetId: parseInt(req.params.tweetId), // Set tweet id from request params.
+    });
+
+    // Find created reply by id.
+    const reply = await Reply.findByPk(result.id, {
+      include: [
+        {
+          all: true,
+          nested: true,
+        },
+      ],
     });
 
     // Send created reply as response.
@@ -60,7 +76,7 @@ async function updateTweetReply(req, res) {
 
     // Update reply using data from request body.
     // Request body must contain all required fields defined in Reply model.
-    const reply = await Reply.update(
+    await Reply.update(
       {
         ...req.body,
         tweetId: parseInt(req.params.tweetId), // Set tweet id from request params.
@@ -71,6 +87,16 @@ async function updateTweetReply(req, res) {
         },
       }
     );
+
+    // Find updated tweet by id.
+    const reply = await Reply.findByPk(parseInt(req.params.id), {
+      include: [
+        {
+          all: true,
+          nested: true,
+        },
+      ],
+    });
 
     // Send updated reply as response.
     res.json(reply);

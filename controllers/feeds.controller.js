@@ -24,6 +24,12 @@ async function getFeeds(req, res) {
       where: {
         createdBy: followingIds,
       },
+      include: [
+        {
+          all: true,
+          nested: true,
+        },
+      ],
     });
 
     // Send all tweets as response.

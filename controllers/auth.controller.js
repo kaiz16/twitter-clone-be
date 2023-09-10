@@ -2,6 +2,20 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User.js");
 const { hashPassword, comparePassword } = require("../utils/bcrypt.util.js");
 
+async function me(req, res) {
+  try {
+    // Get user from database
+    const user = await User.findOne({
+      where: { email: req.user.email },
+    });
+
+    res.status(200).json({ user });
+  } catch (error) {
+    // If there is any error, send error as response.
+    res.status(500).json({ error: error });
+  }
+}
+
 async function register(req, res) {
   try {
     // Check if the user with the same email already exist
@@ -18,13 +32,27 @@ async function register(req, res) {
     // Create user using data from request body.
     // Request body must contain all required fields defined in User model.
     const hashedPassword = hashPassword(req.body.password);
-    const user = await User.create({
+    await User.create({
       ...req.body,
       password: hashedPassword,
     });
 
-    // Send created user as response.
-    res.json(user);
+    // Get user from database
+    const user = await User.findOne({
+      where: { email: req.body.email },
+    });
+
+    // Generate JWT
+    const token = jwt.sign(
+      { id: user.id, email: user.email },
+      process.env.SECRET_KEY,
+      {
+        expiresIn: "2h",
+        algorithm: "HS256",
+      }
+    );
+
+    res.status(200).json({ user, accessToken: token });
   } catch (error) {
     // If there is any error, send error as response.
     res.status(500).json({ error: error });
@@ -61,7 +89,7 @@ async function login(req, res) {
 
     // Generate JWT
     const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
+      { id: user.id, email: user.email },
       process.env.SECRET_KEY,
       {
         expiresIn: "2h",
@@ -69,7 +97,10 @@ async function login(req, res) {
       }
     );
 
-    res.status(200).json({ accessToken: token });
+    // Remove password field from user object
+    user.password = undefined;
+
+    res.status(200).json({ user, accessToken: token });
   } catch (error) {
     // If there is any error, send error as response.
     res.status(500).json({ error: error });
@@ -77,6 +108,7 @@ async function login(req, res) {
 }
 
 module.exports = {
+  me,
   register,
   login,
 };

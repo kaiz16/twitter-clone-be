@@ -15,6 +15,12 @@ async function getAllTweetLikes(req, res) {
       where: {
         tweetId: parseInt(req.params.tweetId),
       },
+      include: [
+        {
+          all: true,
+          nested: true,
+        },
+      ],
     });
 
     // Send all likes as response.
@@ -34,9 +40,19 @@ async function createTweetLike(req, res) {
 
     // Create like using data from request body.
     // Request body must contain all required fields defined in Like model.
-    const like = await Like.create({
+    const result = await Like.create({
       ...req.body,
       tweetId: parseInt(req.params.tweetId), // Set tweet id from request params.
+    });
+
+    // Find created like by id.
+    const like = await Like.findByPk(result.id, {
+      include: [
+        {
+          all: true,
+          nested: true,
+        },
+      ],
     });
 
     // Send created like as response.

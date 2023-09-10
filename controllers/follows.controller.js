@@ -15,6 +15,12 @@ async function getAllUserFollowers(req, res) {
       where: {
         followingId: parseInt(req.params.userId),
       },
+      include: [
+        {
+          all: true,
+          nested: true,
+        },
+      ],
     });
 
     // Find all followers count by following id.
@@ -50,6 +56,12 @@ async function getAllUserFollowings(req, res) {
       where: {
         followerId: parseInt(req.params.userId),
       },
+      include: [
+        {
+          all: true,
+          nested: true,
+        },
+      ],
     });
 
     // Find all follwings count by following id.
@@ -84,9 +96,19 @@ async function createUserFollow(req, res) {
 
     // Create follow using data from request body.
     // Request body must contain all required fields defined in Follow model.
-    const follow = await Follow.create({
+    const result = await Follow.create({
       ...req.body,
       followerId: parseInt(req.params.userId),
+    });
+
+    // Find created follow by id.
+    const follow = await Follow.findByPk(result.id, {
+      include: [
+        {
+          all: true,
+          nested: true,
+        },
+      ],
     });
 
     // Send created follow as response.

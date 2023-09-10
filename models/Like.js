@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/db.config.js");
+const User = require("./User.js");
 
 const Like = sequelize.define(
   "Like",
@@ -44,5 +45,6 @@ const Like = sequelize.define(
     timestamps: false,
   }
 );
+Like.belongsTo(User, { foreignKey: "likedBy", as: "user" });
 
 module.exports = Like;

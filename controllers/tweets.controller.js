@@ -12,6 +12,12 @@ async function getAllTweets(req, res) {
       limit: limit,
       offset: offset,
       order: [[sortBy, sortOrder]],
+      include: [
+        {
+          all: true,
+          nested: true,
+        },
+      ],
     });
 
     // Send all tweets as response.
@@ -25,7 +31,14 @@ async function getAllTweets(req, res) {
 async function getTweetById(req, res) {
   try {
     // Find tweet by id.
-    const tweet = await Tweet.findByPk(parseInt(req.params.id));
+    const tweet = await Tweet.findByPk(parseInt(req.params.id), {
+      include: [
+        {
+          all: true,
+          nested: true,
+        },
+      ],
+    });
 
     // Send tweet as response.
     res.json(tweet);
@@ -44,8 +57,18 @@ async function createTweet(req, res) {
 
     // Create tweet using data from request body.
     // Request body must contain all required fields defined in Tweet model.
-    const tweet = await Tweet.create({
+    const result = await Tweet.create({
       ...req.body,
+    });
+
+    // Find created tweet by id.
+    const tweet = await Tweet.findByPk(result.id, {
+      include: [
+        {
+          all: true,
+          nested: true,
+        },
+      ],
     });
 
     // Send created tweet as response.
@@ -69,7 +92,7 @@ async function updateTweet(req, res) {
 
     // Update tweet using data from request body.
     // Request body must contain all required fields defined in Tweet model.
-    const tweet = await Tweet.update(
+    await Tweet.update(
       {
         ...req.body,
       },
@@ -79,6 +102,16 @@ async function updateTweet(req, res) {
         },
       }
     );
+
+    // Find updated tweet by id.
+    const tweet = await Tweet.findByPk(parseInt(req.params.id), {
+      include: [
+        {
+          all: true,
+          nested: true,
+        },
+      ],
+    });
 
     // Send updated tweet as response.
     res.json(tweet);

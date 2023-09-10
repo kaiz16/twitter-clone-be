@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/db.config.js");
+const User = require("./User.js");
 
 const Follow = sequelize.define(
   "Follow",
@@ -44,5 +45,7 @@ const Follow = sequelize.define(
     timestamps: false,
   }
 );
+Follow.belongsTo(User, { foreignKey: "followerId", as: "follower" });
+Follow.belongsTo(User, { foreignKey: "followingId", as: "following" });
 
 module.exports = Follow;
